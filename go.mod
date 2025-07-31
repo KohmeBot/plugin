@@ -3,7 +3,7 @@ module github.com/kohmebot/plugin
 go 1.23.1
 
 require (
-	github.com/wdvxdr1123/ZeroBot v1.7.5
+	github.com/wdvxdr1123/ZeroBot v1.8.1
 	gorm.io/gorm v1.25.12
 )
 

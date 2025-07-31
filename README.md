@@ -11,24 +11,12 @@ KohmeBot的底层是[ZeroBot](https://github.com/wdvxdr1123/ZeroBot.git)框架�
 ## 插件仓库结构
 ```go
 myplugin/ // 你的插件名称
-├── main.go // 编译入口(包名需为main)
+├── go.mod // 模块入口
 └── myplugin/ // 子包(推荐和插件名称同名)
     └── plugin.go // 插件的实现
 ```
 可查看[实例插件仓库](https://github.com/Kohmebot/chatai)。
-- main.go
-``` go
-// main.go
-package main
-import (
-	"github.com/kohmebot/myplugin/myplugin"
-	"github.com/kohmebot/plugin"
-)
-// 这个方法签名必须如下，否则无法被加载
-func NewPlugin() plugin.Plugin {
-	return myplugin.NewPlugin()
-}
-```
+
 - myplugin/plugin.go
 ```go
 // myplugin/plugin.go
@@ -39,6 +27,7 @@ import "github.com/kohmebot/plugin"
 type MyPluginImpl struct {
 	// ...
 }
+// NewPlugin 初始化插件实例,方法签名必须固定
 func NewPlugin() plugin.Plugin {
 	return new(MyPluginImpl)
 }
@@ -47,12 +36,6 @@ func NewPlugin() plugin.Plugin {
 
 ## 接口定义
 
-### NewPluginFunc
-这是新建对象实例的方法签名，需要在main包下，且函数名为`NewPlugin`<br>
-```go
-// NewPluginFunc 插件初始化函数,主程序通过该方法来新建插件实例
-type NewPluginFunc = func() Plugin
-```
 ### Plugin
 插件接口，实现该接口，可以被KohmeBot插件系统正确加载
 ```go
@@ -172,8 +155,8 @@ plugins:
 ```go
 // Config 结构体
 type Config struct{
-	Say string `mapstructure:"say"`
-	TimeDuration int64 `mapstructure:"time_duration"`
+	Say string `yaml:"say"`
+	TimeDuration int64 `yaml:"time_duration"`
 }
 //...
 conf := Config{}
@@ -197,7 +180,7 @@ RangeBot(yield func(ctx *zero.Ctx) bool)
 `Groups` 获取启用的群
 
 #### SuperUsers
-`SuperUser` 获取所有超级
+`SuperUser` 获取所有超级管理员
 
 #### Error
 `Error` 插件运行时抛出的错误
@@ -238,6 +221,7 @@ type Groups interface {...}
 type Users interface {...}
 ```
 
-## 构建
-由于go-plugin的限制，需要若有与kohmebot共用的包，则需要版本一致，且go编译版本也要一致<br>
-否则将无法加载插件
+## 自动构建
+1. 将你的代码推送到仓库,并打包对应版本tag
+2. 在主程序的`plugins.yaml`中,指定插件名称与插件仓库地址,使用构建脚本即可自动下载插件
+
