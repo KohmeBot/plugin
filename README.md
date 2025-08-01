@@ -12,10 +12,18 @@ KohmeBot的底层是[ZeroBot](https://github.com/wdvxdr1123/ZeroBot.git)框架�
 ```go
 myplugin/ // 你的插件名称
 ├── go.mod // 模块入口
-└── myplugin/ // 子包(推荐和插件名称同名)
+└── myplugin/ // 子包(和插件名称同名)
     └── plugin.go // 插件的实现
 ```
 可查看[实例插件仓库](https://github.com/Kohmebot/chatai)。
+
+## 生成插件仓库模板
+```shell
+# 安装kohme-gen
+go install github.com/kohmebot/plugin/cmd/kohme-gen@latest
+# -n 指定你的插件名称 -r 指定模块名称,也就是github仓库地址
+kohme-gen -n myplugin -r github.com/kohmebot/myplugin
+```
 
 - myplugin/plugin.go
 ```go
