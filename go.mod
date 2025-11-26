@@ -1,4 +1,4 @@
-module github.com/kohmebot/plugin
+module github.com/kohmebot/plugin/v2
 
 go 1.23.1
 

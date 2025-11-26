@@ -1,4 +1,4 @@
-# KohmeBot Plugin
+# KohmeBot PluginV2
 
 ## 前言
 本仓库为KohmeBot的插件定义，KohmeBot可通过go-plugin来实现动态加载插件。 <br>
@@ -20,7 +20,7 @@ myplugin/ // 你的插件名称
 ## 生成插件仓库模板
 ```shell
 # 安装kohme-gen
-go install github.com/kohmebot/plugin/cmd/kohme-gen@latest
+go install github.com/kohmebot/plugin/v2/cmd/kohme-gen@latest
 # -n 指定你的插件名称 -r 指定模块名称,也就是github仓库地址
 kohme-gen -n myplugin -r github.com/kohmebot/myplugin
 ```
@@ -29,7 +29,7 @@ kohme-gen -n myplugin -r github.com/kohmebot/myplugin
 ```go
 // myplugin/plugin.go
 package myplugin
-import "github.com/kohmebot/plugin"
+import "github.com/kohmebot/plugin/v2"
 
 // 你的插件实现
 type MyPluginImpl struct {
@@ -54,50 +54,7 @@ type Plugin interface {...}
 `Init`方法会在Bot运行前调用，用于初始化插件，例如注册命令，事件等。
 ```go
 // Init 初始化插件(任意有关插件功能逻辑应放在此处进行，而不是在 NewPluginFunc),在Bot运行前调用
-Init(engine *zero.Engine, env Env) error
-```
-
-#### Name
-`Name`方法用于返回插件名称，每个插件应具有唯一性
-```go
-// Name 插件名称，应具有唯一性
-Name() string
-```
-
-#### Description
-`Description`方法用于返回插件描述，表明插件的作用
-```go
-// Description 插件描述
-Description() string
-```
-
-#### Commands
-`Commands`方法用于返回插件命令列表，仅用于描述插件的命令作用
-```go
-// Commands 插件支持的命令描述
-//  example:
-//  func (p *myPlugin) Commands() command.Commands  {
-//		return command.NewCommands(
-//			command.NewCommand("查看当前时间","time"),
-//			command.NewCommand("关闭","close","c"),
-//		)
-//}
-Commands() fmt.Stringer
-```
-
-#### Version
-`Version`方法用于返回插件版本号，使用x.y.z格式<br>
-在一个uint64中，前16位为x，中间16位为y，后32位为z<br>
-可导入[pkg/version](https://github.com/kohmebot/pkg)包来便捷生成
-```go
-// Version 插件版本,使用x.y.z 格式
-// 在uint64中，前16位为x，中间16位为y，后32位为z
-// 可通过导入 version(github.com/kohmebot/pkg/version)包来便捷生成
-//  example:
-//  func (p *myPlugin) Version() version.Version {
-//		return version.NewVersion(1,0,0)
-//}
-Version() uint64
+Init(engine *plugin.Engine, env plugin.Env) error
 ```
 
 #### OnBoot
@@ -107,13 +64,45 @@ Version() uint64
 OnBoot()
 ```
 
+#### OnHelp
+`OnHelp`方法是用户在执行 `/help <plugin name>` 命令的回调，可用于发送插件帮助信息
+```go
+// OnHelp 插件帮助回调
+OnHelp(ctx *zero.Ctx)
+```
+
+#### Name
+`Name`方法用于返回插件名称，每个插件应具有唯一性
+```go
+// Name 插件名称，应具有唯一性
+Name() string
+```
+
+#### Version
+`Version`方法用于返回插件版本号，使用`go-SemVer`语义化版本格式<br>
+```go
+// Version 插件版本,使用 go-SemVer 语义化版本格式
+//  example:
+//  func (p *myPlugin) Version() string {
+//		return "v1.0.0"
+//}
+Version() string
+```
+
+
 ### Env
 `Env`是插件的运行环境
 ```go
 type Env interface {...}
 ```
+#### Set
+`Set` 方法用于设置插件运行环境变量，key-value键值对
+```go
+// Set 设置环境变量
+Set(key string, value any)
+```
 #### Get
-`Get`方法用于获取插件运行环境变量，通过key获取，取决于`kohmebot`的`plugins.yaml`的`plugins`配置
+`Get`方法用于获取插件运行环境变量，通过key获取，取决于`kohmebot`的`plugins.yaml`的`plugins`配置，或者通过`Set`方法设置的变量
 ```go
 // Get 获取环境变量
 Get(key string) any
@@ -121,22 +110,21 @@ Get(key string) any
 示例：
 ```yaml
 # plugins.yaml
+env:
+  api_key: "your-api-key"
 plugins:
   myplugin:
-    target: 123456
     conf:
       say: "hello world"
       time_duration: 10
 ```
 ```go
-target,ok := env.Get("target").(int64)
-if !ok{
-	target = 0
-}
+target,ok := env.Get("api_key").(string)
+
 // do something...
 ```
 #### FilePath
-`FilePath` 获取插件的数据目录，在末尾没有路径分隔符，需要用filepath.Join来拼接<br>
+`FilePath` 获取插件的数据目录
 目录路径是静态的，建议在`Init`方法中获取并保存
 ```go
 // FilePath 获取插件数据目录(不存在时会自动创建)
@@ -177,11 +165,11 @@ if err!=nil{return err}
 ```go
 GetDB() (*gorm.DB, error)
 ```
-#### RangeBot
-`RangeBot` 遍历所有bot实例，同`zero.RangeBot`
+#### GetBot
+`GetBot` 获取当前bot实例
 ```go
-// RangeBot 遍历所有机器人实例
-RangeBot(yield func(ctx *zero.Ctx) bool)
+// GetBot 获取当前机器人实例
+GetBot() *zero.Ctx
 ```
 
 #### Groups
@@ -206,7 +194,7 @@ GetPlugin(name string) (p Plugin, ok bool)
 ```
 
 #### IsDisable
-`IsDisable`判断插件功能此时是否被禁用(并发安全)
+`IsDisable`判断插件功能此时是否被禁用
 
 ### Groups
 `Groups`是一个已启用群的集合
