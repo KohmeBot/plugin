@@ -96,8 +96,8 @@ type Env interface {
 	GetConf(conf any) error
 	// GetDB 获取数据库连接
 	GetDB() (*gorm.DB, error)
-	// GetBot 获取当前机器人实例
-	GetBot() *zero.Ctx
+	// UseBot 获取并使用当前机器人实例
+	UseBot(h zero.Handler)
 	// Groups 获取启用的群
 	Groups() Groups
 	// SuperUser 获取SuperUser

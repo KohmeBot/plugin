@@ -164,11 +164,11 @@ if err!=nil{return err}
 ```go
 GetDB() (*gorm.DB, error)
 ```
-#### GetBot
-`GetBot` 获取当前bot实例
+#### UseBot
+`UseBot` 获取并使用当前bot实例
 ```go
-// GetBot 获取当前机器人实例
-GetBot() *zero.Ctx
+// UseBot 获取并使用当前机器人实例
+UseBot(h zero.Handler)
 ```
 
 #### Groups
