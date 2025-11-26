@@ -1,8 +1,7 @@
 # KohmeBot PluginV2
 
 ## 前言
-本仓库为KohmeBot的插件定义，KohmeBot可通过go-plugin来实现动态加载插件。 <br>
-特别注意，go-plugin不支持windows系统，windows系统需使用导包,静态编译的方式实现插件加载。
+本仓库为KohmeBot的插件定义，KohmeBot可通过`配置声明`来实现动态加载插件。 <br>
 
 ## ZeroBot
 KohmeBot的底层是[ZeroBot](https://github.com/wdvxdr1123/ZeroBot.git)框架，提供了统一的插件管理和装配能力。<br>
