@@ -18,10 +18,7 @@ const template = `
 package <PluginName>
 
 import (
-	"fmt"
-	"github.com/kohmebot/pkg/command"
-	"github.com/kohmebot/pkg/version"
-	"github.com/kohmebot/plugin"
+	"github.com/kohmebot/plugin/v2"
 	zero "github.com/wdvxdr1123/ZeroBot"
 )
 
@@ -33,31 +30,30 @@ func NewPlugin() plugin.Plugin {
 	return new(<PluginStruct>)
 }
 
-func (p *<PluginStruct>) Init(engine *zero.Engine, env plugin.Env) error {
+func (p *<PluginStruct>) OnInit(engine plugin.Engine, env plugin.Env) error {
 	p.env = env
 
 	return nil
+}
+
+func (p *<PluginStruct>) OnBoot() {
+
+}
+
+func (p *<PluginStruct>) OnHelp(ctx *zero.Ctx) {
+	ctx.Send("Hello World!")
 }
 
 func (p *<PluginStruct>) Name() string {
 	return "<PluginName>"
 }
 
-func (p *<PluginStruct>) Description() string {
-	return "插件描述"
+
+func (p *<PluginStruct>) Version() string {
+	return "v1.0.0"
 }
 
-func (p *<PluginStruct>) Commands() fmt.Stringer {
-	return command.NewCommands()
-}
 
-func (p *<PluginStruct>) Version() uint64 {
-	return uint64(version.NewVersion(0, 0, 10))
-}
-
-func (p *<PluginStruct>) OnBoot() {
-
-}
 
 `
 
