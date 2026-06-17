@@ -84,6 +84,11 @@ type Plugin interface {
 	Version() string
 }
 
+type ConfigProvider interface {
+	// ConfigModel 获取配置文件结构，使用JSON Schema标签
+	ConfigModel() any
+}
+
 // Env 插件运行环境
 type Env interface {
 	// Set 设置环境变量

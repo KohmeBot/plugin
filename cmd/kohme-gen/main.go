@@ -54,6 +54,10 @@ func (p *<PluginStruct>) Version() string {
 	return "v1.0.0"
 }
 
+func (p *<PluginStruct>) ConfigModel() any {
+	return nil
+}
+
 
 
 `
